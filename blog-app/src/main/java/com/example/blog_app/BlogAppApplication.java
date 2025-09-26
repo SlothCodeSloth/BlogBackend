@@ -1,5 +1,6 @@
 package com.example.blog_app;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +14,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @SpringBootApplication
 public class BlogAppApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(BlogAppApplication.class, args);
 	}
@@ -31,21 +31,23 @@ public class BlogAppApplication {
 		};
 	}
 
+	/* Import Local and Deployed Frontend */
+	@Value("${CORS_ORIGINS}")
+	private String corsOrigins; // comma-separated
+
 	/**
 	 * Configure CORS settings for API endpoints.
 	 * Allows frontend (local dev + deployed domain) to access backend.
 	 */
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
+		String[] originsArray = corsOrigins.split(",");
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				// WebMvcConfigurer.super.addCorsMappings(registry);
 				registry.addMapping("/api/**")
-						.allowedOrigins(
-								"http://localhost:5173", // Local Frontend
-								"https://ikaserver.mynetgear.com" // Deployed Frontend
-								)
+						.allowedOrigins(originsArray)
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 						.allowCredentials(true);
 			}
